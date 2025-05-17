@@ -4,8 +4,8 @@ SHARED_TARGET := libutils.so
 CXX_SRC = device_data.cpp host_data.cpp
 CUDA_SRC = random_generator_int.cu
 
-INC_DIR += /usr/local/cuda/include .
-LIB_DIR += /usr/local/cuda/lib64
+INC_DIR += $(CUDA_PATH)/include .
+LIB_DIR += $(CUDA_PATH)/lib64
 LIBS = cudart
 
 

@@ -11,8 +11,8 @@ CUDA_SRC := vector_add.cu
 
 EXTRA_MODULE := $(WORKDIR)/0_utils/libutils.so
 
-INC_DIR += /usr/local/cuda/include ../0_utils
-LIB_DIR += /usr/local/cuda/lib64
+INC_DIR += $(CUDA_PATH)/include ../0_utils
+LIB_DIR += $(CUDA_PATH)/lib64
 LIBS := cudart
 
 include ../make_scripts/build_executable.mk

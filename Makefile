@@ -1,5 +1,5 @@
 # Location of the CUDA Toolkit
-CUDA_PATH ?= /usr/local/cuda
+CUDA_PATH ?= /usr/local/cuda-12.9
 
 # architecture
 HOST_ARCH   := $(shell uname -m)
@@ -64,5 +64,5 @@ WORKDIR := $(shell pwd)
 all: $(addsuffix .build, $(Samples))
 
 %.build:
-	$(MAKE) -C $* WORKDIR=$(WORKDIR) NVCC="$(NVCC)" NVCCFLAGS="$(NVCCFLAGS)" GENCODE_FLAGS="$(GENCODE_FLAGS)" CXXFLAGS="$(CXXFLAGS)"
+	$(MAKE) -C $* WORKDIR=$(WORKDIR) CUDA_PATH="$(CUDA_PATH)" NVCC="$(NVCC)" NVCCFLAGS="$(NVCCFLAGS)" GENCODE_FLAGS="$(GENCODE_FLAGS)" CXXFLAGS="$(CXXFLAGS)"
 

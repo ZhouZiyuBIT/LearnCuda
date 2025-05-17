@@ -1,4 +1,5 @@
 
+#include <iomanip>
 #include <iostream>
 #include <cmath>
 
@@ -43,11 +44,12 @@ int main() {
     }).print("[cpu]");
     double v_dev = std_dev(v, v_mean);
 
+    std::cout << std::setprecision(10);
     std::cout << "mean: " << v_mean << ", dev: " << v_dev << std::endl;
 
     int64_t sum;
-    TIME_USED(10, [&](){
-        sum= int_sum_gpu(d_v.data(), d_v.size());
+    TIME_USED(100, [&](){
+        sum = int_sum_gpu(d_v.data(), d_v.size());
     }).print("[gpu]");
     std::cout << "[gpu] mean: " << static_cast<double>(sum) / N << std::endl;
 
