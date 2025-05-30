@@ -50,7 +50,9 @@ bool HostData<T>::operator== (const HostData<T>& cmp) {
 
     for (size_t i = 0; i < _N; ++i) {
         double diff = static_cast<double>(_data[i] - cmp._data[i]);
-        if (std::fabs(diff) > 0.0001) {
+        // 精度误差在累加的时候竟让是非常需要考虑的事
+        if (std::fabs(diff) > 0.002) {
+            std:: cout << "equal check failed, diff: " << diff << ", at " << i << std::endl;
             return false;
         }
     }
@@ -80,10 +82,10 @@ const HostData<T>& HostData<T>::operator=(const DeviceData<T>& d_other) {
 static std::mt19937 random_data_gen(13483);
 
 template<typename T>
-void HostData<T>::random_init() {
+void HostData<T>::random_init(T a, T b) {
     using DistributionType = typename std::conditional<std::is_integral<T>::value,
             std::uniform_int_distribution<T>, std::uniform_real_distribution<T>>::type;
-    DistributionType dist(0, 100);
+    DistributionType dist(a, b);
 
     for (size_t i = 0; i < _N; ++i) {
         _data[i] = dist(random_data_gen);
@@ -91,4 +93,5 @@ void HostData<T>::random_init() {
 }
 
 template class HostData<int>;
+template class HostData<float>;
 

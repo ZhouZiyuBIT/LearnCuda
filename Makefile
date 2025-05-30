@@ -42,7 +42,8 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 ################################################################################
 
-SMS ?= 50 52 60 61 70 75 80 86 89 90
+# SMS ?= 50 52 60 61 70 75 80 86 89 90
+SMS ?= 80 86 89 90
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
@@ -58,7 +59,8 @@ endif
 ALL_CCFLAGS += --threads 0 --std=c++11
 
 ################################################################################
-Samples := 0_utils 1_print_cuda_info 2_vector_add 3_vector_reduction
+Samples := 0_utils 1_print_cuda_info 2_vector_add 3_vector_reduction 4_matrix_mul \
+		   100_float_precision
 WORKDIR := $(shell pwd)
 
 all: $(addsuffix .build, $(Samples))

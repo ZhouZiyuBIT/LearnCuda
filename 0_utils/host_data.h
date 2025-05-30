@@ -15,7 +15,7 @@ public:
     HostData(const HostData<T>& other) = delete;
     HostData<T> operator= (const HostData<T>& other) = delete;
 
-    void random_init();
+    void random_init(T a, T b);
 
     // device to host
     const HostData<T>& operator= (const DeviceData<T>& d_other);

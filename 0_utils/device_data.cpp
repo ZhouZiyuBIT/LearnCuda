@@ -58,13 +58,15 @@ const DeviceData<T>& DeviceData<T>::operator=(const HostData<T>& d_other) {
     return *this;
 }
 
-void random_uniform_int(const int min, const int max, int* x, const size_t N);
+void random_uniform(const int min, const int max, int* x, const size_t N);
+void random_uniform(const float min, const float max, float* x, const size_t N);
 
 template<typename T>
 void DeviceData<T>::random_init() {
     // TODO: 特化为只针对int类型
-    random_uniform_int(0, 256, _data, _N);
+    random_uniform(0.0, 10.0, _data, _N);
 }
 
 template class DeviceData<int>;
+template class DeviceData<float>;
 
