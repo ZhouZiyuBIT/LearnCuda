@@ -12,7 +12,6 @@ int main() {
                   << cudaGetErrorString(err) << std::endl;
         return 1;
     }
-    std::cout << "CUDA device count: " << deviceCount << std::endl;
 
     for (int i = 0; i < deviceCount; ++i) {
         cudaDeviceProp prop;
@@ -24,6 +23,8 @@ int main() {
         }
         std::cout << "Device " << i << ": " << prop.name << std::endl;
         std::cout << "  totalGlobalMem: " << prop.totalGlobalMem / (1024 * 1024) << "MB" << std::endl;
+        std::cout << "  memoryClockRate: " << prop.memoryClockRate / (1000000) << "GHz" << std::endl;
+        std::cout << "  memoryBusWidth: " << prop.memoryBusWidth << std::endl;
         std::cout << "  sharedMemPerBlock: " << prop.sharedMemPerBlock / 1024 << "KB" << std::endl;
         std::cout << "  regsPerBlock: " << prop.regsPerBlock << std::endl;
         std::cout << "  maxThreadsPerBlock: " << prop.maxThreadsPerBlock << std::endl;

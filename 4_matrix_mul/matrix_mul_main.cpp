@@ -7,9 +7,9 @@
 const size_t _K = (1 << 10);
 const size_t _M = (1 << 20);
 
-const size_t Mat_M = 1024;
-const size_t Mat_K = 512;
-const size_t Mat_N = 512;
+const size_t Mat_M = 10 * _K;
+const size_t Mat_K = 1 * _K;
+const size_t Mat_N = 20 * _K;
 
 void mat_mul_cpu(float* A, float* B, float* C, size_t M, size_t K, size_t N) {
     for (int m = 0; m < M; ++m) {
@@ -41,10 +41,14 @@ void mat_mul_cublas(float* A, float* B, float* C, size_t M, size_t K, size_t N) 
                 B, K,
                 &beta,
                 C, M);
+    cudaDeviceSynchronize();
 }
 
 void sgemm_gpu(float* A, float* B, float* C,
-               size_t M, size_t K, size_t N);
+               int M, int K, int N);
+
+void my_sgemm(float* A, float* B, float* C,
+           int M, int N, int K);
 
 int main() {
     HostData<float> h_A(Mat_M * Mat_K);
@@ -61,20 +65,21 @@ int main() {
     d_A = h_A;
     d_B = h_B;
 
-    TIME_USED(5, [&]() {
-        mat_mul_cpu(h_A.data(), h_B.data(), h_C_res.data(), Mat_M, Mat_K, Mat_N);
-    }).print("cpu mat_mul");
+    // TIME_USED(1, [&]() {
+    //     mat_mul_cpu(h_A.data(), h_B.data(), h_C_res.data(), Mat_M, Mat_K, Mat_N);
+    // }).print("cpu mat_mul");
 
-    TIME_USED(1, [&]() {
+    CUDA_TIME_USED(100, [&]() {
         mat_mul_cublas(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_K, Mat_N);
     }).print("cublas mat_mul");
-    h_C = d_C;
-    std::cout << "cublas res check: " << (h_C == h_C_res) << std::endl;
+    // h_C = d_C;
+    // std::cout << "cublas res check: " << (h_C == h_C_res) << std::endl;
+    h_C_res = d_C;
 
-    sgemm_gpu(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_K, Mat_N);
-    TIME_USED(1, [&]() {
-        sgemm_gpu(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_K, Mat_N);
-        cudaDeviceSynchronize();
+    d_C = h_C;
+    my_sgemm(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_N, Mat_K);
+    CUDA_TIME_USED(100, [&]() {
+        my_sgemm(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_N, Mat_K);
     }).print("gpu mat_mul");
     h_C = d_C;
     std::cout << "gpu res check: " << (h_C == h_C_res) << std::endl;

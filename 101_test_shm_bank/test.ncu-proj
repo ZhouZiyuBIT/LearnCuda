@@ -1,6 +1,10 @@
 {
     "extension": "ncu-proj",
     "files": [
+        {
+            "is_open": true,
+            "path": "test.ncu-rep"
+        }
     ],
     "launcher": {
         "activity/interactiveprofile/booststate": "Auto",
@@ -42,7 +46,7 @@
         "activity/profile/nativestackincludeexcludeoptions": "",
         "activity/profile/nvtxincludeexcludeoptions": "",
         "activity/profile/nvtxpushpopscope": "Thread",
-        "activity/profile/outputfile": "",
+        "activity/profile/outputfile": "/home/zzyu/LearnCuda/101_test_shm_bank/test",
         "activity/profile/pmsamplingbuffersize": 0,
         "activity/profile/pmsamplinginterval": 0,
         "activity/profile/pmsamplingmaxpasses": 0,
@@ -56,6 +60,8 @@
         "activity/profile/samplingMaxPasses": 5,
         "activity/profile/sourcefolders": "",
         "activity/profile/targetprocesses": "All",
+        "activity/systemtrace/target/command_line": "\"/home/zzyu/LearnCuda/101_test_shm_bank/test_shm_bank\" ",
+        "activity/systemtrace/target/process_name": "/home/zzyu/LearnCuda/101_test_shm_bank/test_shm_bank",
         "platform/armserver/arguments": "",
         "platform/armserver/environment": "",
         "platform/armserver/executable": "",
@@ -64,7 +70,10 @@
         "platform/linux (x86_64)/device": "localhost",
         "platform/linux/arguments": "",
         "platform/linux/environment": "",
-        "platform/linux/executable": "",
+        "platform/linux/executable": "/home/zzyu/LearnCuda/101_test_shm_bank/test_shm_bank",
+        "platform/linux/executable/history": [
+            "/home/zzyu/LearnCuda/101_test_shm_bank/test_shm_bank"
+        ],
         "platform/linux/workingdir": "",
         "platform/win32/arguments": "",
         "platform/win32/environment": "",
@@ -72,6 +81,6 @@
         "platform/win32/workingdir": "",
         "platform/windows/device": ""
     },
-    "uuid": "{81ba3290-dbb5-4fcc-9f36-e9ec3b629ed2}",
+    "uuid": "{7273965c-98ae-4042-823b-d671d1627418}",
     "version": "1.0"
 }
