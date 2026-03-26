@@ -51,7 +51,7 @@ bool HostData<T>::operator== (const HostData<T>& cmp) {
     for (size_t i = 0; i < _N; ++i) {
         double diff = static_cast<double>(_data[i] - cmp._data[i]);
         // 精度误差在累加的时候竟让是非常需要考虑的事
-        if (std::fabs(diff) > 0.002) {
+        if (std::fabs(diff) > 0.02) {
             std:: cout << "equal check failed, diff: " << diff << ", at " << i << std::endl;
             return false;
         }

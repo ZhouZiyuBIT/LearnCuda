@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 # Setup CUDA Architectures before project() so it becomes the default
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-    set(CMAKE_CUDA_ARCHITECTURES 120)
+    set(CMAKE_CUDA_ARCHITECTURES 86)
 endif()
 
 project(LearnCuda LANGUAGES CXX CUDA)

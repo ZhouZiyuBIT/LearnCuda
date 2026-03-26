@@ -7,9 +7,9 @@
 const size_t _K = (1 << 10);
 const size_t _M = (1 << 20);
 
-const size_t Mat_M = 10 * _K;
-const size_t Mat_K = 1 * _K;
-const size_t Mat_N = 20 * _K;
+const size_t Mat_M = 4 * _K;
+const size_t Mat_K = 4 * _K;
+const size_t Mat_N = 4 * _K;
 
 void mat_mul_cpu(float* A, float* B, float* C, size_t M, size_t K, size_t N) {
     for (int m = 0; m < M; ++m) {
@@ -81,6 +81,7 @@ int main() {
     CUDA_TIME_USED(100, [&]() {
         my_sgemm(d_A.data(), d_B.data(), d_C.data(), Mat_M, Mat_N, Mat_K);
     }).print("gpu mat_mul");
+
     h_C = d_C;
     std::cout << "gpu res check: " << (h_C == h_C_res) << std::endl;
 

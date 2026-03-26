@@ -6,9 +6,10 @@
 
 #define WARP_SIZE 32
 
-template<int BD_X, int BD_Y,
-         int BK_M, int BK_N, int BK_K>
-__global__ void sgemm_kernel(float* A, float* B, float* C,
+template<int BK_M, int BK_N, int BK_K,
+         int WM, int WN,
+         int TM, int TN>
+__global__ void sgemm_kernel_256(float* A, float* B, float* C,
                              int M, int N, int K) {
     __shared__ float smem_a[BK_K][BK_M];
     __shared__ float smem_b[BK_K][BK_N];
@@ -16,50 +17,71 @@ __global__ void sgemm_kernel(float* A, float* B, float* C,
     int block_base_m = blockIdx.x * BK_M;
     int block_base_n = blockIdx.y * BK_N;
 
-    int tid = threadIdx.x + threadIdx.y * blockDim.x;
+    int tid = threadIdx.x;
     int warp_id = tid / 32;
+    int warp_m = warp_id % (16 / WM);
+    int warp_n = warp_id / (16 / WM);
     int warp_tid = tid % 32;
-    int warp_x = warp_tid % 8;
-    int warp_y = warp_tid / 8;
-    int warp_row = warp_id % 2;
-    int warp_col = warp_id / 2;
+    int warp_tm = warp_tid % WM;
+    int warp_tn = warp_tid / WM;
 
-    float a_reg[8];
-    float b_reg[8];
-    float res[8][8] = {0.0};
+    int tm = warp_m * WM * TM + warp_tm * TM;
+    int tn = warp_n * WN * TN + warp_tn * TN;
+
+    float a_reg[TM];
+    float b_reg[TN];
+    float res[TN][TM] = {0.0};
     for (int k_base = 0; k_base < K; k_base += BK_K) {
-        // load a;
-        int local_m = (tid * 4) % BK_M;
-        int local_k = (tid * 4) / BK_M;
-        FLOAT4(smem_a[local_k][local_m]) = FLOAT4(A[block_base_m + local_m + (k_base + local_k) * M]);
+         // load a;
+         int local_m = (tid * 4) % BK_M;
+         int local_k = (tid * 4) / BK_M;
+         float4 tmp = FLOAT4(A[block_base_m + local_m + (k_base + local_k) * M]);
+         smem_a[local_k][local_m] = tmp.x;
+         smem_a[local_k][local_m + 1] = tmp.y;
+         smem_a[local_k][local_m + 2] = tmp.z;
+         smem_a[local_k][local_m + 3] = tmp.w;
+ 
+         // local_b
+         local_k = (tid * 4) % BK_K;
+         int local_n = (tid * 4) / BK_K;
+         tmp = FLOAT4(B[k_base + local_k + (block_base_n + local_n) * K]);
+         smem_b[local_k][local_n] = tmp.x;
+         smem_b[local_k + 1][local_n] = tmp.y;
+         smem_b[local_k + 2][local_n] = tmp.z;
+         smem_b[local_k + 3][local_n] = tmp.w;
 
-        // local_b
-        local_k = (tid * 4) % BK_K;
-        int local_n = (tid * 4) / BK_K;
-        FLOAT4(smem_b[local_k][local_n]) = FLOAT4(B[k_base + local_k + (block_base_n + local_n) * K]);
+
         __syncthreads();
 
         // block: (128, 128)
         // warp: (4, 8)
         for (int k = 0; k < BK_K; k++) {
             for (int a = 0; a < 8; a++) {
-                a_reg[a] = smem_a[k][warp_row * 8 + warp_x + a * 16];
+                a_reg[a] = smem_a[k][tm + a];
             }
             for (int a = 0; a < 8; a++) {
-                b_reg[a] = smem_b[k][warp_col * 4 + warp_y + a * 16];
+                b_reg[a] = smem_b[k][tn + a];
             }
             __syncthreads();
             for (int a = 0; a < 8; a++) {
                 for (int b = 0; b < 8; b++) {
-                    res[b][a] += b_reg[b] * a_reg[a];
+                    res[a][b] += b_reg[a] * a_reg[b];
                 }
             }
         }
+
+        __syncthreads();
     }
 
     for(int a = 0; a < 8; a++) {
-        for (int b = 0; b < 8; b++) {
-            C[block_base_m + warp_row * 8 + warp_x + a * 16 + (block_base_n + warp_col * 4 + warp_y + b * 16) * M] = res[b][a];
+        int out_n = block_base_n + tn + a;
+        for (int b = 0; b < 8; b+=4) {
+            float4 tmp;
+            tmp.x = res[a][b];
+            tmp.y = res[a][b + 1];
+            tmp.z = res[a][b + 2];
+            tmp.w = res[a][b + 3];
+            FLOAT4(C[block_base_m + tm + b + out_n * M]) = tmp;
         }
     }
 }
@@ -70,8 +92,10 @@ void my_sgemm(float* A, float* B, float* C,
     assert(N % 128 == 0);
     assert(K % 8 == 0);
     dim3 grid_dim(M / 128, N / 128, 1);
-    dim3 block_dim( 16, 16, 1);
-    sgemm_kernel<16, 16, 128, 128, 8><<<grid_dim, block_dim>>>(A, B, C, M, N, K);
+    int block_dim = 256;
+    sgemm_kernel_256<128, 128, 8,
+                 2, 16,
+                 8, 8><<<grid_dim, block_dim>>>(A, B, C, M, N, K);
 }
 
 
